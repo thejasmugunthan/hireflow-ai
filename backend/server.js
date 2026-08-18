@@ -16,7 +16,7 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
-// Connect to MongoDB
+// Connect to MongoDB (with retry resilience)
 connectDB();
 
 const app = express();
@@ -33,6 +33,21 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve local upload files statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Root route for cloud health verification
+app.get('/', (req, res) => {
+  res.json({
+    service: 'HireFlow AI Backend API',
+    status: 'online',
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/health',
+      jobs: '/api/jobs',
+      applications: '/api/applications',
+      auth: '/api/auth/login',
+    },
+  });
+});
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -55,7 +70,7 @@ app.use(errorHandler);
 // Only start TCP listener when running locally or on a standard Node server (not Lambda)
 if (!process.env.AWS_LAMBDA_FUNCTION_NAME && process.env.NODE_ENV !== 'test') {
   const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 HireFlow AI Server running on port ${PORT}`);
     console.log(`🔗 Health Check: http://localhost:${PORT}/api/health`);
   });
