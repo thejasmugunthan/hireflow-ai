@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import serverless from 'serverless-http';
 
 import { connectDB } from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
@@ -51,11 +52,14 @@ app.use('/api/applications', applicationRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
+// Only start TCP listener when running locally or on a standard Node server (not Lambda)
+if (!process.env.AWS_LAMBDA_FUNCTION_NAME && process.env.NODE_ENV !== 'test') {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`🚀 HireFlow AI Server running on port ${PORT}`);
+    console.log(`🔗 Health Check: http://localhost:${PORT}/api/health`);
+  });
+}
 
-app.listen(PORT, () => {
-  console.log(`🚀 HireFlow AI Server running on port ${PORT}`);
-  console.log(`🔗 Health Check: http://localhost:${PORT}/api/health`);
-});
-
+export const handler = serverless(app);
 export default app;
