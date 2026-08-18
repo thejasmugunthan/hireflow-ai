@@ -1,0 +1,22 @@
+{
+  "name": "hireflow-ai",
+  "version": "1.0.0",
+  "description": "HireFlow AI — Candidate Application & Hiring Management System",
+  "scripts": {
+    "backend": "cd backend && npm run dev",
+    "frontend": "cd frontend && npm run dev",
+    "seed": "cd backend && npm run seed"
+  },
+  "keywords": [
+    "hireflow",
+    "ai",
+    "hiring-management",
+    "ats",
+    "fullstack",
+    "react",
+    "express",
+    "mongodb"
+  ],
+  "author": "Thejas M",
+  "license": "MIT"
+}
