@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "HireFlow AI — Candidate Application & Hiring Management System",
   "scripts": {
+    "build": "cd frontend && npm run build",
     "backend": "cd backend && npm run dev",
     "frontend": "cd frontend && npm run dev",
     "seed": "cd backend && npm run seed"
