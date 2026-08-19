@@ -1,7 +1,20 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Sparkles, Lock, Mail, ArrowRight, AlertCircle, ShieldCheck, Eye, EyeOff } from 'lucide-react';
+import {
+  Sparkles,
+  Lock,
+  Mail,
+  ArrowRight,
+  AlertCircle,
+  ShieldCheck,
+  Eye,
+  EyeOff,
+  Activity,
+  Layers,
+  Cpu,
+  CheckCircle2,
+} from 'lucide-react';
 
 export const Login = () => {
   const navigate = useNavigate();
@@ -39,90 +52,141 @@ export const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-linkedin-bg">
-      {/* Left Branding Panel - hidden on mobile */}
+    <div className="min-h-screen flex bg-[#F6F9FD] text-slate-900 selection:bg-blue-500 selection:text-white">
+      {/* ── LEFT MODERN SHOWCASE PANEL ───────────────────────────────────── */}
       <div
-        className="hidden lg:flex flex-col justify-between w-[480px] flex-shrink-0 p-12 text-white"
-        style={{ background: 'linear-gradient(160deg, #0A66C2 0%, #1d4ed8 50%, #4F46E5 100%)' }}
+        className="hidden lg:flex flex-col justify-between w-[520px] flex-shrink-0 p-12 relative overflow-hidden text-white"
+        style={{
+          background: 'radial-gradient(ellipse at top left, #1d4ed8 0%, #0A66C2 45%, #0B192C 100%)',
+        }}
       >
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-            <Sparkles className="w-6 h-6 text-white" />
-          </div>
-          <span className="font-bold text-xl">HireFlow AI</span>
-        </div>
+        {/* Background ambient lighting effects */}
+        <div className="absolute -top-24 -left-24 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-10 right-0 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="space-y-6">
-          <h2 className="text-4xl font-extrabold leading-tight">
-            Hire smarter,<br />not harder.
-          </h2>
-          <p className="text-blue-100 text-base leading-relaxed">
-            AI-powered candidate screening, structured pipeline management, and real-time analytics — all in one platform.
-          </p>
-          <div className="space-y-3 pt-2">
-            {[
-              'AI-driven resume analysis & scoring',
-              'Stage-by-stage hiring pipeline (R1→R2→R3)',
-              'Real-time dashboard & insights',
-              'Duplicate application prevention',
-            ].map((feat) => (
-              <div key={feat} className="flex items-center gap-3">
-                <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
-                  <ShieldCheck className="w-3 h-3 text-white" />
-                </div>
-                <span className="text-sm text-blue-50">{feat}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <p className="text-blue-200 text-xs">© 2026 HireFlow AI — Candidate Management Platform</p>
-      </div>
-
-      {/* Right Login Form */}
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-8">
-        <div className="w-full max-w-md space-y-6 animate-fade-in-up">
-
-          {/* Mobile Brand Header */}
-          <div className="lg:hidden text-center">
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-md" style={{ background: 'linear-gradient(135deg, #0A66C2, #4F46E5)' }}>
+        {/* Brand Header */}
+        <div className="flex items-center justify-between relative z-10">
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="w-11 h-11 rounded-2xl bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
               <Sparkles className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-2xl font-extrabold text-linkedin-text">HireFlow AI</h1>
-            <p className="text-sm text-linkedin-muted mt-1">Admin Portal</p>
+            <div>
+              <span className="font-black text-xl tracking-tight text-white block">HireFlow</span>
+              <span className="text-[10px] font-bold text-blue-200 tracking-widest uppercase">Admin Workspace</span>
+            </div>
+          </Link>
+
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 backdrop-blur-md border border-white/15 text-blue-100">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            System Live
+          </span>
+        </div>
+
+        {/* Center: Unique Interactive Floating Pipeline Dashboard Preview */}
+        <div className="relative z-10 my-auto py-8 space-y-4">
+          <div className="space-y-2">
+            <span className="text-xs font-bold uppercase tracking-widest text-blue-300">
+              Talent Operating System
+            </span>
+            <h2 className="text-3xl font-black text-white leading-tight">
+              Recruiter Command Center
+            </h2>
           </div>
 
-          {/* Form Card */}
-          <div className="hf-card p-8 space-y-5">
-            <div className="hidden lg:block">
-              <h1 className="text-2xl font-extrabold text-linkedin-text">Sign in</h1>
-              <p className="text-sm text-linkedin-muted mt-1">Welcome back to your hiring dashboard</p>
+          {/* Frosted Glass Live Widget */}
+          <div className="bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-white/15 shadow-2xl space-y-4">
+            {/* Widget Top Bar */}
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <Activity className="w-4 h-4 text-blue-300" />
+                <span className="text-xs font-bold text-white">Live Pipeline Status</span>
+              </div>
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-400/20 text-emerald-300 border border-emerald-400/30">
+                100% Encrypted
+              </span>
             </div>
 
-            {/* Demo Credentials Banner */}
-            <div
-              className="flex items-center justify-between p-3.5 rounded-xl text-sm"
-              style={{ background: '#EAF4FF', border: '1px solid #BFDBFE' }}
-            >
-              <div className="flex items-center gap-2 text-linkedin-blue">
-                <ShieldCheck className="w-4 h-4 flex-shrink-0" />
-                <span className="font-medium text-xs">Demo: admin@enter.in / admin123</span>
+            {/* Visual Stage Progress Nodes */}
+            <div className="grid grid-cols-4 gap-2 pt-1">
+              {[
+                { name: 'Applied', count: '12', color: 'bg-blue-400' },
+                { name: 'R1 Screen', count: '8', color: 'bg-indigo-400' },
+                { name: 'R2 Tech', count: '5', color: 'bg-amber-400' },
+                { name: 'Approved', count: '3', color: 'bg-emerald-400' },
+              ].map((st) => (
+                <div key={st.name} className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-center">
+                  <div className="text-sm font-black text-white">{st.count}</div>
+                  <div className="text-[10px] text-blue-200 font-medium truncate">{st.name}</div>
+                  <div className={`w-full h-1 rounded-full ${st.color} mt-1.5 opacity-80`} />
+                </div>
+              ))}
+            </div>
+
+            {/* AI Screening Indicator */}
+            <div className="p-3 rounded-xl bg-black/20 border border-white/10 flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-blue-500/30 flex items-center justify-center">
+                  <Cpu className="w-4 h-4 text-blue-300" />
+                </div>
+                <div>
+                  <div className="font-semibold text-white">Automated AI Parser</div>
+                  <div className="text-[10px] text-blue-200">Instant Resume & Plagiarism Audit</div>
+                </div>
+              </div>
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="relative z-10 flex items-center justify-between text-xs text-blue-200 pt-4 border-t border-white/10">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-blue-300" />
+            <span>256-Bit TLS Secured Admin Session</span>
+          </div>
+          <span>v2.4.0</span>
+        </div>
+      </div>
+
+      {/* ── RIGHT LOGIN CARD ─────────────────────────────────────────────── */}
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-8 relative">
+        <div className="w-full max-w-md space-y-6 animate-fade-in-up">
+
+          {/* Mobile Header */}
+          <div className="lg:hidden text-center space-y-2">
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto shadow-md" style={{ background: '#1677FF' }}>
+              <Sparkles className="w-6 h-6 text-white" />
+            </div>
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight">HireFlow AI</h1>
+            <p className="text-xs text-slate-500 font-medium">Recruitment Team Portal</p>
+          </div>
+
+          {/* Login Box */}
+          <div className="bg-white rounded-3xl p-8 sm:p-10 border border-slate-200 shadow-xl space-y-6">
+            <div className="hidden lg:block space-y-1">
+              <h1 className="text-2xl font-black text-slate-900 tracking-tight">Admin Sign In</h1>
+              <p className="text-xs text-slate-500">Access candidate applications and manage your hiring pipeline</p>
+            </div>
+
+            {/* Quick Demo Credentials Autofill Banner */}
+            <div className="flex items-center justify-between p-3.5 rounded-2xl bg-blue-50/80 border border-blue-200 text-xs">
+              <div className="flex items-center gap-2 text-blue-700">
+                <ShieldCheck className="w-4 h-4 flex-shrink-0 text-blue-600" />
+                <span className="font-semibold">Demo: admin@enter.in / admin123</span>
               </div>
               <button
                 type="button"
                 onClick={handleFillDemo}
-                className="px-3 py-1.5 rounded-full text-xs font-semibold text-white transition-colors flex-shrink-0"
-                style={{ background: '#0A66C2' }}
-                onMouseOver={e => e.target.style.background = '#004182'}
-                onMouseOut={e => e.target.style.background = '#0A66C2'}
+                className="px-3 py-1 rounded-xl text-[11px] font-bold text-white transition-all shadow-xs active:scale-95 flex-shrink-0"
+                style={{ background: '#1677FF' }}
               >
                 Auto Fill
               </button>
             </div>
 
-            {/* Error */}
+            {/* Error Display */}
             {error && (
-              <div className="flex items-center gap-2.5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-sm animate-fade-in-up">
+              <div className="flex items-center gap-2.5 p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-600 text-xs font-medium animate-fade-in-up">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 <span>{error}</span>
               </div>
@@ -131,39 +195,41 @@ export const Login = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Email */}
               <div>
-                <label className="block text-xs font-semibold text-linkedin-text mb-1.5">Email Address</label>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  Admin Email
+                </label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-linkedin-muted" />
+                  <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="admin@enter.in"
-                    className="hf-input"
-                    style={{ paddingLeft: '2.5rem' }}
+                    className="w-full pl-10 pr-4 py-3 text-xs bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-blue-500 focus:bg-white transition-all"
                   />
                 </div>
               </div>
 
               {/* Password */}
               <div>
-                <label className="block text-xs font-semibold text-linkedin-text mb-1.5">Password</label>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  Password
+                </label>
                 <div className="relative">
-                  <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-linkedin-muted" />
+                  <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
-                    className="hf-input"
-                    style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
+                    placeholder="Enter your admin password"
+                    className="w-full pl-10 pr-10 py-3 text-xs bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-blue-500 focus:bg-white transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-linkedin-muted hover:text-linkedin-text transition-colors"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -174,28 +240,29 @@ export const Login = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="btn-primary w-full py-3 text-sm mt-2"
+                className="w-full py-3.5 px-6 rounded-2xl font-bold text-xs text-white shadow-lg shadow-blue-500/25 transition-all hover:bg-blue-700 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 mt-2"
+                style={{ background: '#1677FF' }}
               >
                 {loading ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                    <span>Signing in...</span>
+                    <span>Authenticating...</span>
                   </>
                 ) : (
                   <>
-                    <span>Sign In to Dashboard</span>
+                    <span>Enter Hiring Dashboard</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
               </button>
             </form>
 
-            <div className="text-center pt-2">
+            <div className="text-center pt-2 border-t border-slate-100">
               <Link
                 to="/"
-                className="text-xs text-linkedin-muted hover:text-linkedin-blue transition-colors"
+                className="text-xs font-semibold text-slate-500 hover:text-blue-600 transition-colors"
               >
-                ← Back to Candidate Portal
+                ← Return to Public Job Board
               </Link>
             </div>
           </div>
