@@ -7,8 +7,10 @@ import {
   Cpu,
   Check,
   ShieldCheck,
-  FileCheck,
-  AlertOctagon,
+  Zap,
+  Target,
+  HelpCircle,
+  TrendingUp,
 } from 'lucide-react';
 import { applicationService } from '../../services/applicationService';
 
@@ -32,6 +34,8 @@ export const AIInsightsCard = ({ application, onRefresh }) => {
   const plagiarismScore = ai?.plagiarismScore ?? 12;
   const originalityScore = ai?.originalityScore ?? (100 - plagiarismScore);
   const isPending = ai?.status === 'pending';
+  const matchedCount = ai?.matchedSkills?.length ?? 0;
+  const totalSkillsCount = (ai?.matchedSkills?.length ?? 0) + (ai?.missingSkills?.length ?? 0);
 
   const getScoreRingColor = (sc) => {
     if (sc >= 80) return '#057642';
@@ -39,12 +43,38 @@ export const AIInsightsCard = ({ application, onRefresh }) => {
     return '#B45309';
   };
 
+  const getVerdict = (sc) => {
+    if (sc >= 80) {
+      return {
+        badge: 'Strong Fit (Fast-Track)',
+        bg: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+        dot: 'bg-emerald-500',
+        recommendation: 'Highly recommended to advance to Round 1 technical interview.',
+      };
+    }
+    if (sc >= 65) {
+      return {
+        badge: 'Qualified (Proceed to R1)',
+        bg: 'bg-blue-50 text-blue-800 border-blue-200',
+        dot: 'bg-blue-500',
+        recommendation: 'Meets core requirements. Schedule initial technical screening.',
+      };
+    }
+    return {
+      badge: 'Potential Match (Review Gaps)',
+      bg: 'bg-amber-50 text-amber-800 border-amber-200',
+      dot: 'bg-amber-500',
+      recommendation: 'Check missing skills during preliminary interview screening.',
+    };
+  };
+
   const getPlagiarismColor = (plag) => {
-    if (plag <= 20) return { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', label: 'Low Plagiarism Risk' };
-    if (plag <= 40) return { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', label: 'Moderate Similarity' };
+    if (plag <= 20) return { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', label: 'High Originality' };
+    if (plag <= 40) return { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', label: 'Standard Phrasing' };
     return { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200', label: 'High Template Plagiarism' };
   };
 
+  const verdict = getVerdict(score);
   const plagMeta = getPlagiarismColor(plagiarismScore);
 
   return (
@@ -57,12 +87,12 @@ export const AIInsightsCard = ({ application, onRefresh }) => {
           </div>
           <div>
             <h3 className="font-bold text-sm text-linkedin-text flex items-center gap-2">
-              AI Talent & Resume Authenticity Insights
+              AI Candidate Evaluation & Insights
               <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-linkedin-blue border border-blue-200">
-                OpenAI + NLP
+                OpenAI Powered
               </span>
             </h3>
-            <p className="text-xs text-linkedin-muted">Automated skill extraction, match scoring & plagiarism audit</p>
+            <p className="text-xs text-linkedin-muted">Automated skill verification, match scoring & plagiarism audit</p>
           </div>
         </div>
 
@@ -81,14 +111,14 @@ export const AIInsightsCard = ({ application, onRefresh }) => {
           <div className="inline-flex p-3 rounded-2xl bg-blue-50 border border-blue-200 mb-3">
             <Cpu className="w-6 h-6 text-linkedin-blue animate-spin" />
           </div>
-          <h4 className="text-sm font-semibold text-linkedin-text">AI Analysis & Plagiarism Check in Progress</h4>
+          <h4 className="text-sm font-semibold text-linkedin-text">AI Analysis in Progress</h4>
           <p className="text-xs text-linkedin-muted max-w-sm mx-auto mt-1">
-            Analyzing resume text structure, matching keywords, and evaluating originality metrics...
+            Parsing resume text, calculating keyword alignment, and auditing authenticity...
           </p>
         </div>
       ) : (
         <div className="space-y-5">
-          {/* Top Metrics Row: Match Score + Plagiarism Meter + Executive Summary */}
+          {/* Top Metrics Row: Match Score + Plagiarism Meter + Recruiter Actionable Recommendation */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch">
             {/* Match Score Ring (3 cols) */}
             <div className="md:col-span-3 flex flex-col items-center justify-center p-4 rounded-xl bg-slate-50 border border-linkedin-border text-center">
@@ -120,7 +150,7 @@ export const AIInsightsCard = ({ application, onRefresh }) => {
                 </div>
               </div>
               <span className="text-xs font-semibold uppercase tracking-wider text-linkedin-muted">
-                Role Match Score
+                Role Alignment
               </span>
             </div>
 
@@ -130,7 +160,7 @@ export const AIInsightsCard = ({ application, onRefresh }) => {
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-bold uppercase tracking-wider text-linkedin-text flex items-center gap-1.5">
                     <ShieldCheck className="w-4 h-4 text-linkedin-blue" />
-                    Plagiarism / Originality
+                    Plagiarism / Authenticity
                   </span>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${plagMeta.bg} ${plagMeta.text} ${plagMeta.border}`}>
                     {plagMeta.label}
@@ -156,29 +186,53 @@ export const AIInsightsCard = ({ application, onRefresh }) => {
                 </div>
               </div>
 
-              {/* Plagiarism observations */}
+              {/* Authenticity description */}
               <div className="mt-3 pt-2 border-t border-linkedin-border text-[11px] text-linkedin-muted leading-tight">
                 {ai?.plagiarismFlags && ai.plagiarismFlags.length > 0 ? (
                   <span>{ai.plagiarismFlags[0]}</span>
                 ) : (
-                  <span>Verified unique technical portfolio & experience flow.</span>
+                  <span>Verified unique candidate project portfolio.</span>
                 )}
               </div>
             </div>
 
-            {/* AI Executive Summary (5 cols) */}
-            <div className="md:col-span-5 p-4 rounded-xl bg-slate-50 border border-linkedin-border flex flex-col justify-between">
+            {/* Recruiter Actionable Recommendation Card (5 cols - REPLACED OLD SUMMARY) */}
+            <div className="md:col-span-5 p-4 rounded-xl bg-slate-50 border border-linkedin-border flex flex-col justify-between space-y-3">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-linkedin-blue mb-1.5 block">
-                  AI Assessment Summary
-                </span>
-                <p className="text-xs sm:text-sm text-linkedin-text leading-relaxed">
-                  {ai?.summary || 'Candidate analyzed against role requirements.'}
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-linkedin-text flex items-center gap-1.5">
+                    <Target className="w-4 h-4 text-linkedin-blue" />
+                    Recruiter Verdict
+                  </span>
+                  <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border flex items-center gap-1 ${verdict.bg}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${verdict.dot}`} />
+                    {verdict.badge}
+                  </span>
+                </div>
+
+                {/* Recommendation highlight */}
+                <p className="text-xs text-linkedin-text font-medium leading-relaxed">
+                  {verdict.recommendation}
                 </p>
               </div>
-              <div className="mt-2 flex items-center gap-1.5 text-[11px] text-linkedin-muted">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" />
-                <span>Advisory insight. Human recruiters maintain final approval.</span>
+
+              {/* Skills Match Quick Stats */}
+              <div className="grid grid-cols-2 gap-2 pt-2 border-t border-linkedin-border text-xs">
+                <div className="p-2 rounded-lg bg-white border border-slate-200 flex items-center gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+                  <div>
+                    <div className="font-bold text-slate-800">{matchedCount} Matched</div>
+                    <div className="text-[10px] text-slate-400">Core skills verified</div>
+                  </div>
+                </div>
+
+                <div className="p-2 rounded-lg bg-white border border-slate-200 flex items-center gap-2">
+                  <Zap className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
+                  <div>
+                    <div className="font-bold text-slate-800">{ai?.skills?.length ?? 0} Detected</div>
+                    <div className="text-[10px] text-slate-400">Total tech stack</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
