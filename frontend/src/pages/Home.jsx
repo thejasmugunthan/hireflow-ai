@@ -481,11 +481,11 @@ export const Home = () => {
             <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-xs" style={{ background: '#1677FF' }}>
               <Sparkles className="w-4 h-4 text-white" />
             </div>
-            <span className="font-extrabold text-sm text-slate-900">HireFlow AI</span>
+            <span className="font-extrabold text-sm text-slate-900">HireFlow</span>
           </div>
 
           <p className="text-xs text-slate-500 text-center sm:text-left">
-            © 2026 HireFlow AI — Next-Gen Candidate Application & Hiring Management Platform
+            © 2026 HireFlow || Designed & Developed by Thejas.
           </p>
 
           <div className="flex items-center gap-4 text-xs font-medium text-slate-600">

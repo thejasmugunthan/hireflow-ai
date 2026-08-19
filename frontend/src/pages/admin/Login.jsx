@@ -142,9 +142,9 @@ export const Login = () => {
         <div className="relative z-10 flex items-center justify-between text-xs text-blue-200 pt-4 border-t border-white/10">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-blue-300" />
-            <span>256-Bit TLS Secured Admin Session</span>
+            <span>Secured Admin Session</span>
           </div>
-          <span>v2.4.0</span>
+          <span>v1.0.0</span>
         </div>
       </div>
 
@@ -169,7 +169,7 @@ export const Login = () => {
             </div>
 
             {/* Quick Demo Credentials Autofill Banner */}
-            <div className="flex items-center justify-between p-3.5 rounded-2xl bg-blue-50/80 border border-blue-200 text-xs">
+            {/* <div className="flex items-center justify-between p-3.5 rounded-2xl bg-blue-50/80 border border-blue-200 text-xs">
               <div className="flex items-center gap-2 text-blue-700">
                 <ShieldCheck className="w-4 h-4 flex-shrink-0 text-blue-600" />
                 <span className="font-semibold">Demo: admin@enter.in / admin123</span>
@@ -182,7 +182,7 @@ export const Login = () => {
               >
                 Auto Fill
               </button>
-            </div>
+            </div> */}
 
             {/* Error Display */}
             {error && (
