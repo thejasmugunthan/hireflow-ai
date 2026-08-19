@@ -9,8 +9,6 @@ import {
   ShieldCheck,
   Zap,
   Target,
-  HelpCircle,
-  TrendingUp,
 } from 'lucide-react';
 import { applicationService } from '../../services/applicationService';
 
@@ -35,12 +33,11 @@ export const AIInsightsCard = ({ application, onRefresh }) => {
   const originalityScore = ai?.originalityScore ?? (100 - plagiarismScore);
   const isPending = ai?.status === 'pending';
   const matchedCount = ai?.matchedSkills?.length ?? 0;
-  const totalSkillsCount = (ai?.matchedSkills?.length ?? 0) + (ai?.missingSkills?.length ?? 0);
 
-  const getScoreRingColor = (sc) => {
-    if (sc >= 80) return '#057642';
-    if (sc >= 65) return '#0A66C2';
-    return '#B45309';
+  const getScoreColor = (sc) => {
+    if (sc >= 80) return { text: '#057642', bg: '#E6F4EA', ring: '#057642', label: 'Strong Match' };
+    if (sc >= 65) return { text: '#0A66C2', bg: '#EAF4FF', ring: '#0A66C2', label: 'Solid Match' };
+    return { text: '#B45309', bg: '#FEF3C7', ring: '#D97706', label: 'Moderate Match' };
   };
 
   const getVerdict = (sc) => {
@@ -74,32 +71,35 @@ export const AIInsightsCard = ({ application, onRefresh }) => {
     return { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200', label: 'High Template Plagiarism' };
   };
 
+  const scoreMeta = getScoreColor(score);
   const verdict = getVerdict(score);
   const plagMeta = getPlagiarismColor(plagiarismScore);
 
   return (
-    <div className="hf-card p-6 space-y-5">
-      {/* Header */}
-      <div className="flex items-center justify-between pb-4 border-b border-linkedin-border">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #0A66C2, #4F46E5)' }}>
-            <Sparkles className="w-4 h-4 text-white" />
+    <div className="hf-card p-4 sm:p-6 space-y-5">
+      {/* Header — Fully Responsive Flex */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-linkedin-border">
+        <div className="flex items-start sm:items-center gap-3">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg, #0A66C2, #4F46E5)' }}>
+            <Sparkles className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h3 className="font-bold text-sm text-linkedin-text flex items-center gap-2">
-              AI Candidate Evaluation & Insights
-              <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-linkedin-blue border border-blue-200">
-                OpenAI Powered
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="font-bold text-sm sm:text-base text-slate-900">
+                AI Candidate Insights
+              </h3>
+              <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-200">
+                OpenAI + NLP
               </span>
-            </h3>
-            <p className="text-xs text-linkedin-muted">Automated skill verification, match scoring & plagiarism audit</p>
+            </div>
+            <p className="text-xs text-slate-500 mt-0.5">Automated skill verification, match scoring & plagiarism audit</p>
           </div>
         </div>
 
         <button
           onClick={handleReanalyze}
           disabled={loading}
-          className="btn-secondary text-xs px-3 py-1.5"
+          className="btn-secondary text-xs px-3.5 py-2 self-start sm:self-auto flex items-center gap-1.5 whitespace-nowrap"
         >
           <RotateCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
           <span>{loading ? 'Analyzing...' : 'Re-run Analysis'}</span>
@@ -109,58 +109,61 @@ export const AIInsightsCard = ({ application, onRefresh }) => {
       {isPending ? (
         <div className="py-12 text-center">
           <div className="inline-flex p-3 rounded-2xl bg-blue-50 border border-blue-200 mb-3">
-            <Cpu className="w-6 h-6 text-linkedin-blue animate-spin" />
+            <Cpu className="w-6 h-6 text-blue-600 animate-spin" />
           </div>
-          <h4 className="text-sm font-semibold text-linkedin-text">AI Analysis in Progress</h4>
-          <p className="text-xs text-linkedin-muted max-w-sm mx-auto mt-1">
+          <h4 className="text-sm font-semibold text-slate-900">AI Analysis in Progress</h4>
+          <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
             Parsing resume text, calculating keyword alignment, and auditing authenticity...
           </p>
         </div>
       ) : (
         <div className="space-y-5">
-          {/* Top Metrics Row: Match Score + Plagiarism Meter + Recruiter Actionable Recommendation */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch">
-            {/* Match Score Ring (3 cols) */}
-            <div className="md:col-span-3 flex flex-col items-center justify-center p-4 rounded-xl bg-slate-50 border border-linkedin-border text-center">
-              <div className="relative flex items-center justify-center w-22 h-22 mb-1">
-                <svg className="w-22 h-22 transform -rotate-90">
+          {/* Top Metrics: 3 Cards (Stacked on Mobile, 3 Columns on Desktop) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 items-stretch">
+
+            {/* 1. Match Score Card (lg: 3 cols) */}
+            <div className="lg:col-span-3 p-4 rounded-2xl bg-slate-50 border border-linkedin-border flex flex-col items-center justify-center text-center">
+              {/* Radial Progress Ring (Rock-solid SVG with standard ViewBox) */}
+              <div className="relative w-28 h-28 flex items-center justify-center my-1">
+                <svg className="w-28 h-28 -rotate-90" viewBox="0 0 100 100">
                   <circle
-                    cx="44"
-                    cy="44"
-                    r="36"
+                    cx="50"
+                    cy="50"
+                    r="40"
                     stroke="#E2E8F0"
-                    strokeWidth="7"
+                    strokeWidth="8"
                     fill="transparent"
                   />
                   <circle
-                    cx="44"
-                    cy="44"
-                    r="36"
-                    stroke={getScoreRingColor(score)}
-                    strokeWidth="7"
+                    cx="50"
+                    cy="50"
+                    r="40"
+                    stroke={scoreMeta.ring}
+                    strokeWidth="8"
                     fill="transparent"
-                    strokeDasharray="226.2"
-                    strokeDashoffset={226.2 - (226.2 * score) / 100}
+                    strokeDasharray="251.2"
+                    strokeDashoffset={251.2 - (251.2 * score) / 100}
                     strokeLinecap="round"
-                    className="transition-all duration-1000 ease-out"
+                    className="transition-all duration-700"
                   />
                 </svg>
-                <div className="absolute flex flex-col items-center">
-                  <span className="text-2xl font-black text-linkedin-text">{score}%</span>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-2xl font-black text-slate-900 leading-none">{score}%</span>
+                  <span className="text-[10px] font-bold text-slate-400 mt-1 uppercase">Match</span>
                 </div>
               </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-linkedin-muted">
-                Role Alignment
+              <span className="text-xs font-bold text-slate-700 mt-1">
+                Role Alignment Score
               </span>
             </div>
 
-            {/* Plagiarism & Authenticity Meter (4 cols) */}
-            <div className="md:col-span-4 p-4 rounded-xl bg-slate-50 border border-linkedin-border flex flex-col justify-between">
+            {/* 2. Plagiarism & Authenticity Meter (lg: 4 cols) */}
+            <div className="lg:col-span-4 p-4 rounded-2xl bg-slate-50 border border-linkedin-border flex flex-col justify-between space-y-3">
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-linkedin-text flex items-center gap-1.5">
-                    <ShieldCheck className="w-4 h-4 text-linkedin-blue" />
-                    Plagiarism / Authenticity
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                    <ShieldCheck className="w-4 h-4 text-blue-600" />
+                    Plagiarism & Authenticity
                   </span>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${plagMeta.bg} ${plagMeta.text} ${plagMeta.border}`}>
                     {plagMeta.label}
@@ -187,7 +190,7 @@ export const AIInsightsCard = ({ application, onRefresh }) => {
               </div>
 
               {/* Authenticity description */}
-              <div className="mt-3 pt-2 border-t border-linkedin-border text-[11px] text-linkedin-muted leading-tight">
+              <div className="pt-2 border-t border-linkedin-border text-[11px] text-slate-500 leading-tight">
                 {ai?.plagiarismFlags && ai.plagiarismFlags.length > 0 ? (
                   <span>{ai.plagiarismFlags[0]}</span>
                 ) : (
@@ -196,12 +199,12 @@ export const AIInsightsCard = ({ application, onRefresh }) => {
               </div>
             </div>
 
-            {/* Recruiter Actionable Recommendation Card (5 cols - REPLACED OLD SUMMARY) */}
-            <div className="md:col-span-5 p-4 rounded-xl bg-slate-50 border border-linkedin-border flex flex-col justify-between space-y-3">
+            {/* 3. Recruiter Verdict & Skill Counts (lg: 5 cols) */}
+            <div className="sm:col-span-2 lg:col-span-5 p-4 rounded-2xl bg-slate-50 border border-linkedin-border flex flex-col justify-between space-y-3">
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-linkedin-text flex items-center gap-1.5">
-                    <Target className="w-4 h-4 text-linkedin-blue" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                    <Target className="w-4 h-4 text-blue-600" />
                     Recruiter Verdict
                   </span>
                   <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border flex items-center gap-1 ${verdict.bg}`}>
@@ -210,26 +213,25 @@ export const AIInsightsCard = ({ application, onRefresh }) => {
                   </span>
                 </div>
 
-                {/* Recommendation highlight */}
-                <p className="text-xs text-linkedin-text font-medium leading-relaxed">
+                <p className="text-xs text-slate-800 font-medium leading-relaxed">
                   {verdict.recommendation}
                 </p>
               </div>
 
               {/* Skills Match Quick Stats */}
               <div className="grid grid-cols-2 gap-2 pt-2 border-t border-linkedin-border text-xs">
-                <div className="p-2 rounded-lg bg-white border border-slate-200 flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+                <div className="p-2 rounded-xl bg-white border border-slate-200 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                   <div>
-                    <div className="font-bold text-slate-800">{matchedCount} Matched</div>
-                    <div className="text-[10px] text-slate-400">Core skills verified</div>
+                    <div className="font-bold text-slate-900">{matchedCount} Matched</div>
+                    <div className="text-[10px] text-slate-400">Core job skills</div>
                   </div>
                 </div>
 
-                <div className="p-2 rounded-lg bg-white border border-slate-200 flex items-center gap-2">
-                  <Zap className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
+                <div className="p-2 rounded-xl bg-white border border-slate-200 flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-blue-600 flex-shrink-0" />
                   <div>
-                    <div className="font-bold text-slate-800">{ai?.skills?.length ?? 0} Detected</div>
+                    <div className="font-bold text-slate-900">{ai?.skills?.length ?? 0} Detected</div>
                     <div className="text-[10px] text-slate-400">Total tech stack</div>
                   </div>
                 </div>
@@ -239,7 +241,7 @@ export const AIInsightsCard = ({ application, onRefresh }) => {
 
           {/* Extracted Skills Breakdown */}
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-linkedin-muted mb-2.5">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2.5">
               Extracted Skills & Tech Stack
             </h4>
             <div className="flex flex-wrap gap-2">
@@ -252,7 +254,7 @@ export const AIInsightsCard = ({ application, onRefresh }) => {
                       className={`inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full border font-medium ${
                         isMatched
                           ? 'bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold'
-                          : 'bg-slate-100 text-linkedin-text border-slate-200'
+                          : 'bg-slate-100 text-slate-700 border-slate-200'
                       }`}
                     >
                       {isMatched ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : null}
@@ -261,7 +263,7 @@ export const AIInsightsCard = ({ application, onRefresh }) => {
                   );
                 })
               ) : (
-                <span className="text-xs text-linkedin-muted">No specific skills parsed.</span>
+                <span className="text-xs text-slate-400">No specific skills parsed.</span>
               )}
             </div>
           </div>
@@ -269,12 +271,12 @@ export const AIInsightsCard = ({ application, onRefresh }) => {
           {/* Strengths & Potential Gaps Two-Column */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Strengths */}
-            <div className="p-4 rounded-xl bg-emerald-50/50 border border-emerald-200 space-y-2.5">
+            <div className="p-4 rounded-2xl bg-emerald-50/50 border border-emerald-200 space-y-2.5">
               <div className="flex items-center gap-2 text-emerald-800 font-bold text-xs uppercase tracking-wider">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                 <span>Verified Strengths</span>
               </div>
-              <ul className="space-y-1.5 text-xs text-linkedin-text">
+              <ul className="space-y-1.5 text-xs text-slate-700">
                 {ai?.strengths && ai.strengths.length > 0 ? (
                   ai.strengths.map((str, idx) => (
                     <li key={idx} className="flex items-start gap-2">
@@ -283,18 +285,18 @@ export const AIInsightsCard = ({ application, onRefresh }) => {
                     </li>
                   ))
                 ) : (
-                  <li className="text-linkedin-muted italic">No standout strengths detected</li>
+                  <li className="text-slate-400 italic">No standout strengths detected</li>
                 )}
               </ul>
             </div>
 
             {/* Potential Gaps */}
-            <div className="p-4 rounded-xl bg-amber-50/50 border border-amber-200 space-y-2.5">
+            <div className="p-4 rounded-2xl bg-amber-50/50 border border-amber-200 space-y-2.5">
               <div className="flex items-center gap-2 text-amber-800 font-bold text-xs uppercase tracking-wider">
                 <AlertTriangle className="w-4 h-4 text-amber-600" />
                 <span>Areas to Probe / Potential Gaps</span>
               </div>
-              <ul className="space-y-1.5 text-xs text-linkedin-text">
+              <ul className="space-y-1.5 text-xs text-slate-700">
                 {ai?.gaps && ai.gaps.length > 0 ? (
                   ai.gaps.map((gap, idx) => (
                     <li key={idx} className="flex items-start gap-2">
@@ -303,7 +305,7 @@ export const AIInsightsCard = ({ application, onRefresh }) => {
                     </li>
                   ))
                 ) : (
-                  <li className="text-linkedin-muted italic">No major red flags or gaps detected</li>
+                  <li className="text-slate-400 italic">No major red flags or gaps detected</li>
                 )}
               </ul>
             </div>
