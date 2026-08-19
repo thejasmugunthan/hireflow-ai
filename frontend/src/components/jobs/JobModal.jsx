@@ -85,8 +85,8 @@ export const JobModal = ({ isOpen, onClose, job, onSaved }) => {
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Title */}
         <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1">
-            Job Title <span className="text-rose-400">*</span>
+          <label className="block text-xs font-semibold text-linkedin-text mb-1.5">
+            Job Title <span className="text-rose-500">*</span>
           </label>
           <input
             type="text"
@@ -94,14 +94,14 @@ export const JobModal = ({ isOpen, onClose, job, onSaved }) => {
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
             placeholder="e.g. Full Stack Developer, AI/ML Intern"
-            className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand-500"
+            className="hf-input text-sm"
           />
         </div>
 
         {/* Description */}
         <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1">
-            Job Description <span className="text-rose-400">*</span>
+          <label className="block text-xs font-semibold text-linkedin-text mb-1.5">
+            Job Description <span className="text-rose-500">*</span>
           </label>
           <textarea
             required
@@ -109,13 +109,13 @@ export const JobModal = ({ isOpen, onClose, job, onSaved }) => {
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             placeholder="Detailed description of responsibilities, requirements, and tech stack..."
-            className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand-500 resize-y"
+            className="hf-input text-sm resize-y"
           ></textarea>
         </div>
 
         {/* Skills */}
         <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1">
+          <label className="block text-xs font-semibold text-linkedin-text mb-1.5">
             Required Skills (Comma separated)
           </label>
           <input
@@ -123,31 +123,31 @@ export const JobModal = ({ isOpen, onClose, job, onSaved }) => {
             value={formData.skills}
             onChange={(e) => setFormData({ ...formData, skills: e.target.value })}
             placeholder="React, TypeScript, Node.js, MongoDB, REST APIs"
-            className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand-500"
+            className="hf-input text-sm"
           />
         </div>
 
         {/* Location & Type & Status */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Location</label>
+            <label className="block text-xs font-semibold text-linkedin-text mb-1.5">Location</label>
             <input
               type="text"
               value={formData.location}
               onChange={(e) => setFormData({ ...formData, location: e.target.value })}
               placeholder="e.g. Bangalore, Remote"
-              className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-brand-500"
+              className="hf-input text-xs"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">
+            <label className="block text-xs font-semibold text-linkedin-text mb-1.5">
               Employment Type
             </label>
             <select
               value={formData.employmentType}
               onChange={(e) => setFormData({ ...formData, employmentType: e.target.value })}
-              className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-brand-500"
+              className="hf-select text-xs"
             >
               <option value="Full-time">Full-time</option>
               <option value="Internship">Internship</option>
@@ -157,11 +157,11 @@ export const JobModal = ({ isOpen, onClose, job, onSaved }) => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Status</label>
+            <label className="block text-xs font-semibold text-linkedin-text mb-1.5">Status</label>
             <select
               value={formData.status}
               onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-              className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-brand-500"
+              className="hf-select text-xs"
             >
               <option value="Active">Active</option>
               <option value="Closed">Closed</option>
@@ -170,25 +170,25 @@ export const JobModal = ({ isOpen, onClose, job, onSaved }) => {
         </div>
 
         {error && (
-          <div className="p-3 rounded-xl bg-rose-950/40 border border-rose-800/50 flex items-center gap-2 text-xs text-rose-300">
-            <AlertCircle className="w-4 h-4 text-rose-400 flex-shrink-0" />
+          <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 flex items-center gap-2 text-xs text-rose-600">
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
         {/* Actions */}
-        <div className="flex items-center justify-end gap-3 pt-3">
+        <div className="flex items-center justify-end gap-3 pt-3 border-t border-linkedin-border">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white bg-slate-900 hover:bg-slate-800 border border-slate-800 transition-colors"
+            className="btn-secondary text-xs px-4 py-2"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-brand-600 hover:bg-brand-500 shadow-md shadow-brand-500/25 transition-all disabled:opacity-50 active:scale-95"
+            className="btn-primary text-xs px-5 py-2"
           >
             {loading ? 'Saving...' : isEditing ? 'Update Job' : 'Create Job'}
           </button>
