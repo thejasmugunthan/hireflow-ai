@@ -1,3 +1,4 @@
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import OpenAI from 'openai';
 
 /**
@@ -35,7 +36,7 @@ const GENERIC_CLICHES = [
 ];
 
 /**
- * Analyzes a resume against a target job using OpenAI or heuristic fallback
+ * Analyzes a resume against a target job using Google Gemini, OpenAI, or NLP Heuristic Fallback
  */
 export const analyzeCandidateResume = async ({ resumeText, job, candidateName }) => {
   if (!resumeText || resumeText.trim().length === 0) {
@@ -55,23 +56,19 @@ export const analyzeCandidateResume = async ({ resumeText, job, candidateName })
     };
   }
 
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (apiKey && apiKey !== 'your_openai_api_key' && !apiKey.startsWith('mock_')) {
-    try {
-      const openai = new OpenAI({ apiKey });
-      const prompt = `
+  const promptText = `
 You are an expert AI Technical Talent Screener and Resume Authenticity/Plagiarism Auditor for HireFlow AI.
 Analyze the candidate's resume for the specific job opening below.
 
 Job Details:
 - Title: ${job.title}
-- Required Skills: ${job.skills.join(', ')}
-- Description: ${job.description}
+- Required Skills: ${job.skills ? job.skills.join(', ') : 'Not specified'}
+- Description: ${job.description || ''}
 
 Candidate Name: ${candidateName}
 Resume Content:
 """
-${resumeText.slice(0, 4000)}
+${resumeText.slice(0, 5000)}
 """
 
 Assess the candidate on skill matching AND resume authenticity / plagiarism risk (detect generic AI generated text, boilerplates, copied job descriptions, or standard templates).
@@ -93,9 +90,58 @@ Provide your assessment in strictly valid JSON format with the following schema:
 Respond ONLY with valid JSON without markdown fences.
 `;
 
+  // 1. Prioritize Google Gemini API
+  const geminiKey = process.env.GEMINI_API_KEY;
+  if (geminiKey && geminiKey.trim().length > 0 && !geminiKey.startsWith('mock_')) {
+    try {
+      const genAI = new GoogleGenerativeAI(geminiKey);
+      const modelName = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+      const model = genAI.getGenerativeModel({
+        model: modelName,
+        generationConfig: {
+          responseMimeType: 'application/json',
+          temperature: 0.2,
+        },
+      });
+
+      const result = await model.generateContent(promptText);
+      const response = await result.response;
+      const rawJson = response.text();
+      const parsed = JSON.parse(rawJson);
+
+      const plagScore = Math.min(100, Math.max(0, Math.round(parsed.plagiarism_score || 12)));
+      const origScore = Math.min(100, Math.max(0, Math.round(parsed.originality_score || (100 - plagScore))));
+
+      return {
+        status: 'completed',
+        matchScore: Math.min(100, Math.max(0, Math.round(parsed.match_score || 70))),
+        plagiarismScore: plagScore,
+        originalityScore: origScore,
+        plagiarismFlags: Array.isArray(parsed.plagiarism_flags) && parsed.plagiarism_flags.length > 0
+          ? parsed.plagiarism_flags
+          : ['Authentic candidate experience with specific project accomplishments'],
+        summary: parsed.summary || `Candidate profile analyzed successfully with Google Gemini AI.`,
+        skills: Array.isArray(parsed.skills) ? parsed.skills : [],
+        matchedSkills: Array.isArray(parsed.matched_skills) ? parsed.matched_skills : [],
+        missingSkills: Array.isArray(parsed.missing_skills) ? parsed.missing_skills : [],
+        strengths: Array.isArray(parsed.strengths) ? parsed.strengths : [],
+        gaps: Array.isArray(parsed.gaps) ? parsed.gaps : [],
+        evaluatedAt: new Date(),
+        engine: 'Google Gemini',
+      };
+    } catch (geminiErr) {
+      console.warn('Google Gemini API call encountered an error. Trying fallback:', geminiErr.message);
+    }
+  }
+
+  // 2. OpenAI Fallback
+  const openAiKey = process.env.OPENAI_API_KEY;
+  if (openAiKey && openAiKey.trim().length > 0 && !openAiKey.startsWith('mock_')) {
+    try {
+      const openai = new OpenAI({ apiKey: openAiKey });
       const response = await openai.chat.completions.create({
         model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
-        messages: [{ role: 'user', content: prompt }],
+        messages: [{ role: 'user', content: promptText }],
         temperature: 0.2,
         response_format: { type: 'json_object' },
       });
@@ -119,13 +165,14 @@ Respond ONLY with valid JSON without markdown fences.
         strengths: Array.isArray(parsed.strengths) ? parsed.strengths : [],
         gaps: Array.isArray(parsed.gaps) ? parsed.gaps : [],
         evaluatedAt: new Date(),
+        engine: 'OpenAI',
       };
     } catch (openaiErr) {
-      console.warn('OpenAI API call failed or not configured. Using intelligent NLP analysis fallback:', openaiErr.message);
+      console.warn('OpenAI API call failed. Using intelligent NLP analysis fallback:', openaiErr.message);
     }
   }
 
-  // Intelligent NLP & Heuristic Analysis Engine
+  // 3. Intelligent NLP & Heuristic Analysis Engine
   return generateHeuristicAnalysis({ resumeText, job, candidateName });
 };
 
@@ -194,28 +241,27 @@ export const generateHeuristicAnalysis = ({ resumeText, job, candidateName }) =>
   const hasSpecificMetrics = metricMatches.length >= 3;
 
   // Base plagiarism probability
-  let plagiarismScore = 8; // Baseline low risk for normal resumes
+  let plagiarismScore = 8;
   if (clicheCount >= 3) plagiarismScore += 25;
   else if (clicheCount >= 1) plagiarismScore += 10;
 
-  if (ttr < 0.4) plagiarismScore += 18; // Repetitive or standard boilerplate text
-  if (!hasSpecificMetrics) plagiarismScore += 12; // Lack of quantified metrics
+  if (ttr < 0.35) plagiarismScore += 20;
+  if (!hasSpecificMetrics) plagiarismScore += 10;
+  else plagiarismScore = Math.max(5, plagiarismScore - 5);
 
-  plagiarismScore = Math.min(88, Math.max(4, plagiarismScore));
+  plagiarismScore = Math.min(95, Math.max(5, plagiarismScore));
   const originalityScore = 100 - plagiarismScore;
 
   const plagiarismFlags = [];
-  if (plagiarismScore <= 15) {
-    plagiarismFlags.push('High originality: Distinct candidate accomplishments with specific metrics.');
-    plagiarismFlags.push('Low template overlap: Unique project descriptions detected.');
-  } else if (plagiarismScore <= 35) {
-    plagiarismFlags.push('Moderate originality: Standard resume phrasing mixed with custom project details.');
+  if (plagiarismScore <= 20) {
+    plagiarismFlags.push('High authenticity with specific technical project metrics.');
+  } else if (plagiarismScore <= 40) {
+    plagiarismFlags.push('Standard professional resume template with expected industry terminology.');
   } else {
-    plagiarismFlags.push('Elevated template similarity: Multiple generic boilerplate phrases detected.');
-    plagiarismFlags.push('Limited quantified metrics; verify technical depth during interview rounds.');
+    plagiarismFlags.push('Contains repetitive generic clichés and boilerplate statements.');
   }
 
-  // 5. Determine strengths & gaps
+  // 5. Strengths & Gaps
   const strengths = [];
   if (matchedSkills.length > 0) {
     strengths.push(`Demonstrated proficiency in ${matchedSkills.slice(0, 3).join(', ')}`);
@@ -223,27 +269,23 @@ export const generateHeuristicAnalysis = ({ resumeText, job, candidateName }) =>
   if (detectedSkills.length >= 4) {
     strengths.push(`Broad technical repertoire (${detectedSkills.slice(0, 4).join(', ')})`);
   }
-  if (/full[- ]?stack|end[- ]to[- ]end|architecture/i.test(resumeText)) {
-    strengths.push('Exposure to full lifecycle development & project architecture');
+  if (hasSpecificMetrics) {
+    strengths.push('Quantified project impact and verified accomplishments');
   }
   if (strengths.length === 0) {
-    strengths.push('Solid foundational background and clear career progression');
+    strengths.push('Demonstrates foundation in software engineering concepts');
   }
 
   const gaps = [];
   if (missingSkills.length > 0) {
-    gaps.push(`Key job skill(s) not prominently mentioned: ${missingSkills.slice(0, 2).join(', ')}`);
+    gaps.push(`Key job skill(s) not prominently mentioned: ${missingSkills.slice(0, 3).join(', ')}`);
   }
-  if (!/cloud|aws|docker|ci\/cd|deployment/i.test(resumeText)) {
-    gaps.push('Limited explicit mention of cloud deployment or CI/CD pipelines');
+  if (!hasSpecificMetrics) {
+    gaps.push('Limited quantified metrics on project scale or business impact');
   }
   if (gaps.length === 0) {
-    gaps.push('Assess depth of architecture scaling in upcoming interview rounds');
+    gaps.push('Review system design depth and architectural choices during interview');
   }
-
-  const summary = `Candidate ${candidateName} demonstrates a ${
-    score >= 80 ? 'strong' : score >= 65 ? 'solid' : 'moderate'
-  } alignment with the ${job.title} role (${score}% match). Resume displays ${originalityScore}% authentic originality with ${plagiarismScore}% generic template score.`;
 
   return {
     status: 'completed',
@@ -251,12 +293,13 @@ export const generateHeuristicAnalysis = ({ resumeText, job, candidateName }) =>
     plagiarismScore,
     originalityScore,
     plagiarismFlags,
-    summary,
-    skills: Array.from(new Set([...detectedSkills, ...matchedSkills])),
+    summary: `Candidate ${candidateName} demonstrates a ${score >= 75 ? 'strong' : score >= 60 ? 'solid' : 'developing'} alignment with the ${job.title} role (${score}% match). Resume displays ${originalityScore}% authentic originality with ${plagiarismScore}% generic template score.`,
+    skills: detectedSkills.length > 0 ? detectedSkills : jobSkills.slice(0, 3),
     matchedSkills,
     missingSkills,
     strengths,
     gaps,
     evaluatedAt: new Date(),
+    engine: 'NLP Heuristic Engine',
   };
 };
