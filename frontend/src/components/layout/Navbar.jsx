@@ -20,25 +20,11 @@ export const Navbar = () => {
               <span className="font-extrabold text-xl tracking-tight text-slate-900">
                 HireFlow
               </span>
-              {/* <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-blue-50 text-blue-600 border border-blue-200">
-                AI
-              </span> */}
             </div>
           </Link>
 
           {/* Desktop Nav Buttons */}
           <nav className="hidden md:flex items-center gap-3">
-            {/* <Link
-              to="/"
-              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
-                location.pathname === '/'
-                  ? 'text-blue-600 bg-blue-50/80 border border-blue-100'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-              }`}
-            >
-              Open Positions
-            </Link> */}
-
             <Link
               to="/apply"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-500/25 transition-all active:scale-95"
@@ -93,7 +79,7 @@ export const Navbar = () => {
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-xs" style={{ background: '#1677FF' }}>
                   <Sparkles className="w-4 h-4 text-white" />
                 </div>
-                <span className="font-extrabold text-base text-slate-900">HireFlow AI</span>
+                <span className="font-extrabold text-base text-slate-900">HireFlow</span>
               </div>
               <button
                 onClick={() => setMobileOpen(false)}

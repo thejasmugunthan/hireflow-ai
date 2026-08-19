@@ -11,7 +11,6 @@ import {
   Eye,
   EyeOff,
   Activity,
-  Layers,
   Cpu,
   CheckCircle2,
 } from 'lucide-react';
@@ -43,12 +42,6 @@ export const Login = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleFillDemo = () => {
-    setEmail('admin@enter.in');
-    setPassword('admin123');
-    setError('');
   };
 
   return (
@@ -157,7 +150,7 @@ export const Login = () => {
             <div className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto shadow-md" style={{ background: '#1677FF' }}>
               <Sparkles className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight">HireFlow AI</h1>
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight">HireFlow</h1>
             <p className="text-xs text-slate-500 font-medium">Recruitment Team Portal</p>
           </div>
 
@@ -167,22 +160,6 @@ export const Login = () => {
               <h1 className="text-2xl font-black text-slate-900 tracking-tight">Admin Sign In</h1>
               <p className="text-xs text-slate-500">Access candidate applications and manage your hiring pipeline</p>
             </div>
-
-            {/* Quick Demo Credentials Autofill Banner */}
-            {/* <div className="flex items-center justify-between p-3.5 rounded-2xl bg-blue-50/80 border border-blue-200 text-xs">
-              <div className="flex items-center gap-2 text-blue-700">
-                <ShieldCheck className="w-4 h-4 flex-shrink-0 text-blue-600" />
-                <span className="font-semibold">Demo: admin@enter.in / admin123</span>
-              </div>
-              <button
-                type="button"
-                onClick={handleFillDemo}
-                className="px-3 py-1 rounded-xl text-[11px] font-bold text-white transition-all shadow-xs active:scale-95 flex-shrink-0"
-                style={{ background: '#1677FF' }}
-              >
-                Auto Fill
-              </button>
-            </div> */}
 
             {/* Error Display */}
             {error && (
