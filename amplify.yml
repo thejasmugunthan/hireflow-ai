@@ -5,6 +5,8 @@ frontend:
       commands:
         - node --version
         - npm --version
+        - nvm use 18 || nvm install 18
+        - node --version
         - cd frontend && npm install
     build:
       commands:
