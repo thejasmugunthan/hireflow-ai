@@ -1,80 +1,92 @@
 import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { Navbar } from '../components/layout/Navbar';
-import { CheckCircle2, ArrowRight, Sparkles, Briefcase, Mail } from 'lucide-react';
+import { CheckCircle2, ArrowRight, Briefcase, Sparkles, Mail } from 'lucide-react';
 
 export const ApplicationSuccess = () => {
   const location = useLocation();
   const state = location.state || {};
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950">
+    <div className="min-h-screen flex flex-col bg-linkedin-bg">
       <Navbar />
 
-      <main className="flex-1 flex items-center justify-center p-4">
-        <div className="max-w-lg w-full glass-card rounded-3xl p-8 border border-slate-800 text-center space-y-6 shadow-2xl relative overflow-hidden">
-          <div className="absolute -top-16 -right-16 w-48 h-48 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none"></div>
+      <main className="flex-1 flex items-center justify-center p-4 sm:p-8">
+        <div className="w-full max-w-lg space-y-0 animate-fade-in-up">
+          {/* Success Card */}
+          <div className="hf-card p-8 sm:p-10 text-center space-y-6">
+            {/* Check Icon */}
+            <div className="relative mx-auto w-20 h-20">
+              <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto" style={{ background: 'linear-gradient(135deg, #D1FAE5, #6EE7B7)' }}>
+                <CheckCircle2 className="w-10 h-10" style={{ color: '#057642' }} />
+              </div>
+              <div className="absolute inset-0 rounded-full animate-ping opacity-20" style={{ background: '#057642' }} />
+            </div>
 
-          {/* Animated checkmark icon */}
-          <div className="w-16 h-16 rounded-3xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/20 animate-bounce">
-            <CheckCircle2 className="w-9 h-9" />
-          </div>
-
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-semibold">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold" style={{ background: '#D1FAE5', color: '#057642' }}>
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Application Submitted Successfully</span>
+              Application Submitted Successfully!
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Thank you, {state.candidateName || 'Candidate'}!
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-400 max-w-sm mx-auto leading-relaxed">
-              Your application for <strong>{state.jobTitle || 'the selected role'}</strong> has been received by our hiring team.
-            </p>
-          </div>
 
-          {/* Summary Box */}
-          <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 text-left space-y-2.5 text-xs">
-            <div className="flex items-center justify-between text-slate-400">
-              <span>Position:</span>
-              <span className="font-bold text-white">{state.jobTitle || 'Software Role'}</span>
+            {/* Text */}
+            <div className="space-y-2">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-linkedin-text tracking-tight">
+                Thank you, {state.candidateName || 'Candidate'}! 🎉
+              </h1>
+              <p className="text-sm text-linkedin-muted max-w-sm mx-auto leading-relaxed">
+                Your application for <strong className="text-linkedin-text">{state.jobTitle || 'the selected role'}</strong> has been received by our hiring team.
+              </p>
             </div>
-            <div className="flex items-center justify-between text-slate-400">
-              <span>Candidate Email:</span>
-              <span className="font-medium text-slate-200">{state.candidateEmail || '—'}</span>
+
+            {/* Summary Box */}
+            <div className="hf-card-flat p-4 text-left space-y-3 rounded-xl">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-linkedin-muted">Position</span>
+                <span className="font-semibold text-linkedin-text">{state.jobTitle || 'Software Role'}</span>
+              </div>
+              <div className="border-t border-linkedin-border" />
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-linkedin-muted">Email</span>
+                <span className="font-medium text-linkedin-text flex items-center gap-1.5">
+                  <Mail className="w-3.5 h-3.5 text-linkedin-muted" />
+                  {state.candidateEmail || '—'}
+                </span>
+              </div>
+              <div className="border-t border-linkedin-border" />
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-linkedin-muted">Status</span>
+                <span className="badge badge-blue">Applied · AI Screening Queued</span>
+              </div>
             </div>
-            <div className="flex items-center justify-between text-slate-400">
-              <span>Status:</span>
-              <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 font-semibold border border-blue-500/20">
-                Applied (AI Screening Queued)
-              </span>
+
+            {/* Next Steps */}
+            <div className="p-4 rounded-xl text-sm text-left" style={{ background: '#EAF4FF', borderLeft: '3px solid #0A66C2' }}>
+              <p className="font-semibold text-linkedin-text mb-1">What happens next?</p>
+              <p className="text-xs text-linkedin-muted leading-relaxed">
+                Our AI engine is analyzing your resume against the role requirements. The recruitment team will review your profile and contact you via email within 3–5 business days.
+              </p>
             </div>
-          </div>
 
-          {/* Info note */}
-          <p className="text-xs text-slate-400 leading-relaxed">
-            Our automated AI parser is screening your resume against role competencies. The recruitment team will review your profile and reach out via email for next steps.
-          </p>
-
-          <div className="pt-2 flex flex-col sm:flex-row gap-3 justify-center">
-            <Link
-              to="/"
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-slate-300 bg-slate-900 hover:bg-slate-800 border border-slate-700 transition-colors"
-            >
-              <Briefcase className="w-3.5 h-3.5" />
-              <span>Explore More Positions</span>
-            </Link>
-
-            <Link
-              to="/apply"
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-brand-600 hover:bg-brand-500 shadow-md shadow-brand-500/20 transition-all active:scale-95"
-            >
-              <span>Submit Another Application</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+              <Link to="/" className="btn-secondary text-sm px-5 py-2.5">
+                <Briefcase className="w-4 h-4" />
+                Explore More Positions
+              </Link>
+              <Link to="/apply" className="btn-primary text-sm px-5 py-2.5">
+                Submit Another Application
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
           </div>
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="py-6 text-center text-xs text-linkedin-muted border-t border-linkedin-border bg-white">
+        © 2026 HireFlow AI — Candidate Application & Hiring Management System
+      </footer>
     </div>
   );
 };

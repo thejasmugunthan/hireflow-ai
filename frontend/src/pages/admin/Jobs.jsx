@@ -12,12 +12,7 @@ import {
   Trash2,
   Users,
   MapPin,
-  Clock,
   RefreshCw,
-  CheckCircle2,
-  XCircle,
-  ToggleLeft,
-  ToggleRight,
 } from 'lucide-react';
 
 export const Jobs = () => {
@@ -25,6 +20,7 @@ export const Jobs = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingJob, setEditingJob] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const fetchJobs = async () => {
     try {
@@ -38,19 +34,10 @@ export const Jobs = () => {
     }
   };
 
-  useEffect(() => {
-    fetchJobs();
-  }, []);
+  useEffect(() => { fetchJobs(); }, []);
 
-  const handleCreate = () => {
-    setEditingJob(null);
-    setIsModalOpen(true);
-  };
-
-  const handleEdit = (job) => {
-    setEditingJob(job);
-    setIsModalOpen(true);
-  };
+  const handleCreate = () => { setEditingJob(null); setIsModalOpen(true); };
+  const handleEdit = (job) => { setEditingJob(job); setIsModalOpen(true); };
 
   const handleToggleStatus = async (job) => {
     try {
@@ -73,175 +60,204 @@ export const Jobs = () => {
     }
   };
 
+  const activeCount = jobs.filter((j) => j.status === 'Active').length;
+
   return (
-    <div className="flex min-h-screen bg-slate-950">
-      <AdminSidebar />
+    <div className="flex min-h-screen bg-slate-50">
+      <AdminSidebar mobileOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="flex-1 flex flex-col min-w-0">
         <AdminHeader
-          title="Job Openings Management"
-          subtitle="Publish, edit, and monitor application volume across open roles"
+          title="Job Postings"
+          subtitle="Publish, edit, and monitor roles"
+          onMenuClick={() => setSidebarOpen(true)}
           action={
-            <button
-              onClick={handleCreate}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-brand-600 hover:bg-brand-500 shadow-md shadow-brand-500/20 transition-all active:scale-95"
-            >
+            <button onClick={handleCreate} className="btn-primary text-xs px-4 py-2">
               <Plus className="w-4 h-4" />
-              <span>Create New Job</span>
+              Create Job
             </button>
           }
         />
 
-        <main className="flex-1 p-6 sm:p-8 space-y-6 max-w-7xl w-full">
-          {/* Header Summary */}
-          <div className="glass-panel rounded-2xl p-5 border border-slate-800 flex items-center justify-between">
+        <main className="flex-1 p-4 sm:p-6 space-y-4 max-w-7xl w-full">
+          {/* Summary Bar */}
+          <div className="hf-card p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400">
-                <Briefcase className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: '#EAF4FF' }}>
+                <Briefcase className="w-5 h-5" style={{ color: '#0A66C2' }} />
               </div>
               <div>
-                <h3 className="font-bold text-base text-white">Active Positions Overview</h3>
-                <p className="text-xs text-slate-400">
-                  {jobs.filter((j) => j.status === 'Active').length} Active • {jobs.length} Total Postings
-                </p>
+                <div className="font-bold text-linkedin-text text-sm">Job Openings Overview</div>
+                <div className="text-xs text-linkedin-muted mt-0.5">
+                  <span className="font-semibold text-emerald-600">{activeCount} Active</span>
+                  {' · '}
+                  {jobs.length} Total Postings
+                </div>
               </div>
             </div>
-
             <button
               onClick={fetchJobs}
-              className="p-2 rounded-xl text-slate-400 hover:text-white bg-slate-900 border border-slate-800 transition-colors"
+              className="p-2 rounded-lg hover:bg-linkedin-hover text-linkedin-muted transition-colors"
+              title="Refresh"
             >
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-brand-400' : ''}`} />
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             </button>
           </div>
 
-          {/* Jobs Table */}
-          <div className="glass-panel rounded-2xl border border-slate-800 overflow-hidden">
+          {/* Jobs Grid (cards on mobile, table on desktop) */}
+          <div className="hf-card overflow-hidden">
             {loading ? (
-              <div className="p-12 text-center text-xs text-slate-400">
-                <div className="w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-                Loading job requisitions...
+              <div className="p-12 text-center">
+                <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin mx-auto mb-2" style={{ borderColor: '#0A66C2', borderTopColor: 'transparent' }} />
+                <span className="text-sm text-linkedin-muted">Loading job postings...</span>
               </div>
             ) : jobs.length === 0 ? (
               <EmptyState
                 icon={Briefcase}
-                title="No job postings found"
-                description="Create your first job posting to start receiving candidate applications."
+                title="No job postings yet"
+                description="Create your first job posting to start receiving applications."
                 action={
-                  <button
-                    onClick={handleCreate}
-                    className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-brand-600 hover:bg-brand-500"
-                  >
-                    + Create Job
+                  <button onClick={handleCreate} className="btn-primary text-sm">
+                    <Plus className="w-4 h-4" />
+                    Create Job Posting
                   </button>
                 }
               />
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-slate-800/80 bg-slate-900/40 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                      <th className="py-3 px-5">Job Title</th>
-                      <th className="py-3 px-5">Location & Type</th>
-                      <th className="py-3 px-5">Required Competencies</th>
-                      <th className="py-3 px-5">Status</th>
-                      <th className="py-3 px-5">Applicants</th>
-                      <th className="py-3 px-5 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/60 text-xs">
-                    {jobs.map((job) => (
-                      <tr key={job._id} className="hover:bg-slate-900/40 transition-colors">
-                        {/* Title */}
-                        <td className="py-4 px-5">
-                          <div className="font-bold text-white text-sm">{job.title}</div>
-                          <div className="text-[11px] text-slate-400 mt-0.5 line-clamp-1 max-w-xs">
-                            {job.description}
-                          </div>
-                        </td>
-
-                        {/* Location & Type */}
-                        <td className="py-4 px-5 text-slate-300">
-                          <div>{job.location}</div>
-                          <div className="text-[11px] text-slate-400 mt-0.5">{job.employmentType}</div>
-                        </td>
-
-                        {/* Skills */}
-                        <td className="py-4 px-5">
-                          <div className="flex flex-wrap gap-1 max-w-xs">
-                            {job.skills?.slice(0, 3).map((sk, i) => (
-                              <span
-                                key={i}
-                                className="text-[10px] px-2 py-0.5 rounded bg-slate-900 text-slate-300 border border-slate-800"
-                              >
-                                {sk}
-                              </span>
-                            ))}
-                            {job.skills?.length > 3 && (
-                              <span className="text-[10px] text-slate-500 self-center">
-                                +{job.skills.length - 3}
-                              </span>
-                            )}
-                          </div>
-                        </td>
-
-                        {/* Status */}
-                        <td className="py-4 px-5">
-                          <button
-                            onClick={() => handleToggleStatus(job)}
-                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border transition-all ${
-                              job.status === 'Active'
-                                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20'
-                                : 'bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700'
-                            }`}
-                          >
-                            <span
-                              className={`w-1.5 h-1.5 rounded-full ${
-                                job.status === 'Active' ? 'bg-emerald-400' : 'bg-slate-500'
-                              }`}
-                            ></span>
-                            <span>{job.status}</span>
-                          </button>
-                        </td>
-
-                        {/* Applicants count */}
-                        <td className="py-4 px-5">
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-brand-500/10 text-brand-300 font-bold border border-brand-500/20">
-                            <Users className="w-3.5 h-3.5" />
-                            <span>{job.applicationCount ?? 0}</span>
-                          </span>
-                        </td>
-
-                        {/* Actions */}
-                        <td className="py-4 px-5 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <button
-                              onClick={() => handleEdit(job)}
-                              title="Edit Job"
-                              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-                            >
-                              <Edit2 className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(job._id)}
-                              title="Delete Job"
-                              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </td>
+              <>
+                {/* Desktop Table */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full hf-table">
+                    <thead>
+                      <tr>
+                        <th>Job Title</th>
+                        <th>Location & Type</th>
+                        <th>Skills</th>
+                        <th>Status</th>
+                        <th>Applicants</th>
+                        <th className="text-right">Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {jobs.map((job) => (
+                        <tr key={job._id}>
+                          <td>
+                            <div className="font-semibold text-linkedin-text text-sm">{job.title}</div>
+                            <div className="text-xs text-linkedin-muted mt-0.5 line-clamp-1 max-w-xs">{job.description}</div>
+                          </td>
+                          <td>
+                            <div className="text-sm text-linkedin-text flex items-center gap-1">
+                              <MapPin className="w-3.5 h-3.5 text-linkedin-muted flex-shrink-0" />
+                              {job.location}
+                            </div>
+                            <div className="text-xs text-linkedin-muted mt-0.5">{job.employmentType}</div>
+                          </td>
+                          <td>
+                            <div className="flex flex-wrap gap-1 max-w-[180px]">
+                              {job.skills?.slice(0, 3).map((sk, i) => (
+                                <span key={i} className="badge badge-slate text-xs">{sk}</span>
+                              ))}
+                              {job.skills?.length > 3 && (
+                                <span className="text-xs text-linkedin-muted self-center">+{job.skills.length - 3}</span>
+                              )}
+                            </div>
+                          </td>
+                          <td>
+                            <button
+                              onClick={() => handleToggleStatus(job)}
+                              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+                                job.status === 'Active'
+                                  ? 'text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100'
+                                  : 'text-linkedin-muted bg-slate-100 border border-linkedin-border hover:bg-slate-200'
+                              }`}
+                            >
+                              <span className={`w-1.5 h-1.5 rounded-full ${job.status === 'Active' ? 'bg-emerald-500' : 'bg-linkedin-muted'}`} />
+                              {job.status}
+                            </button>
+                          </td>
+                          <td>
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold" style={{ background: '#EAF4FF', color: '#0A66C2' }}>
+                              <Users className="w-3.5 h-3.5" />
+                              {job.applicationCount ?? 0}
+                            </span>
+                          </td>
+                          <td className="text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              <button
+                                onClick={() => handleEdit(job)}
+                                title="Edit"
+                                className="p-1.5 rounded-lg text-linkedin-muted hover:text-linkedin-blue hover:bg-linkedin-lightblue transition-colors"
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDelete(job._id)}
+                                title="Delete"
+                                className="p-1.5 rounded-lg text-linkedin-muted hover:text-rose-500 hover:bg-rose-50 transition-colors"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile Job Cards */}
+                <div className="md:hidden divide-y divide-linkedin-border">
+                  {jobs.map((job) => (
+                    <div key={job._id} className="p-4 space-y-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <div className="font-semibold text-linkedin-text text-sm">{job.title}</div>
+                          <div className="text-xs text-linkedin-muted mt-0.5 flex items-center gap-1">
+                            <MapPin className="w-3 h-3" />
+                            {job.location} · {job.employmentType}
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => handleToggleStatus(job)}
+                          className={`px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0 ${
+                            job.status === 'Active'
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              : 'bg-slate-100 text-linkedin-muted border border-linkedin-border'
+                          }`}
+                        >
+                          {job.status}
+                        </button>
+                      </div>
+
+                      <div className="flex flex-wrap gap-1">
+                        {job.skills?.slice(0, 4).map((sk, i) => (
+                          <span key={i} className="badge badge-slate text-xs">{sk}</span>
+                        ))}
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-linkedin-muted flex items-center gap-1">
+                          <Users className="w-3.5 h-3.5" />
+                          {job.applicationCount ?? 0} applicants
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <button onClick={() => handleEdit(job)} className="p-1.5 rounded-lg text-linkedin-muted hover:text-linkedin-blue hover:bg-linkedin-lightblue transition-colors">
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button onClick={() => handleDelete(job._id)} className="p-1.5 rounded-lg text-linkedin-muted hover:text-rose-500 hover:bg-rose-50 transition-colors">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
           </div>
         </main>
       </div>
 
-      {/* Create / Edit Job Modal */}
       {isModalOpen && (
         <JobModal
           isOpen={isModalOpen}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { AdminSidebar } from '../../components/layout/AdminSidebar';
 import { AdminHeader } from '../../components/layout/AdminHeader';
 import { StagePill } from '../../components/ui/StagePill';
@@ -18,18 +18,25 @@ import {
   ExternalLink,
   SlidersHorizontal,
   MessageSquare,
-  Sparkles,
   Calendar,
 } from 'lucide-react';
 
+const stageMeta = {
+  Applied:  { color: '#1D4ED8', bg: '#DBEAFE' },
+  R1:       { color: '#4F46E5', bg: '#EDE9FE' },
+  R2:       { color: '#B45309', bg: '#FEF3C7' },
+  R3:       { color: '#7C3AED', bg: '#F3E8FF' },
+  Approved: { color: '#057642', bg: '#D1FAE5' },
+  Reject:   { color: '#E11D48', bg: '#FFF1F2' },
+};
+
 export const CandidateDetails = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
-
   const [application, setApplication] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isStageModalOpen, setIsStageModalOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const fetchApplicationDetails = async () => {
     try {
@@ -44,16 +51,14 @@ export const CandidateDetails = () => {
     }
   };
 
-  useEffect(() => {
-    fetchApplicationDetails();
-  }, [id]);
+  useEffect(() => { fetchApplicationDetails(); }, [id]);
 
   if (loading) {
     return (
-      <div className="flex min-h-screen bg-slate-950">
-        <AdminSidebar />
+      <div className="flex min-h-screen bg-slate-50">
+        <AdminSidebar mobileOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         <div className="flex-1 flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: '#0A66C2', borderTopColor: 'transparent' }} />
         </div>
       </div>
     );
@@ -61,14 +66,11 @@ export const CandidateDetails = () => {
 
   if (error || !application) {
     return (
-      <div className="flex min-h-screen bg-slate-950">
-        <AdminSidebar />
+      <div className="flex min-h-screen bg-slate-50">
+        <AdminSidebar mobileOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-          <p className="text-rose-400 font-bold text-base mb-4">{error || 'Candidate profile not found'}</p>
-          <Link
-            to="/admin/applications"
-            className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-brand-600 hover:bg-brand-500"
-          >
+          <p className="text-rose-500 font-semibold text-base mb-4">{error || 'Candidate profile not found'}</p>
+          <Link to="/admin/applications" className="btn-primary text-sm">
             Return to Applications
           </Link>
         </div>
@@ -78,124 +80,120 @@ export const CandidateDetails = () => {
 
   const candidate = application.candidateId;
   const job = application.jobId;
+  const stageMeta_ = stageMeta[application.stage] || { color: '#666', bg: '#F1F5F9' };
 
   return (
-    <div className="flex min-h-screen bg-slate-950">
-      <AdminSidebar />
+    <div className="flex min-h-screen bg-slate-50">
+      <AdminSidebar mobileOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="flex-1 flex flex-col min-w-0">
         <AdminHeader
-          title={`Candidate Profile: ${candidate?.name || 'Applicant'}`}
+          title={candidate?.name || 'Candidate Profile'}
           subtitle={`Applied for ${job?.title || 'Open Role'} on ${formatDate(application.createdAt)}`}
+          onMenuClick={() => setSidebarOpen(true)}
           action={
             <Link
               to="/admin/applications"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 bg-slate-900 hover:bg-slate-850 border border-slate-800 transition-colors"
+              className="btn-ghost text-sm"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Back to Pipeline</span>
+              Back to Pipeline
             </Link>
           }
         />
 
-        <main className="flex-1 p-6 sm:p-8 space-y-6 max-w-7xl w-full">
-          {/* Candidate Profile Top Card */}
-          <div className="glass-panel rounded-2xl p-6 border border-slate-800 relative overflow-hidden">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-              {/* Name & Contact Info */}
-              <div className="space-y-3">
-                <div className="flex flex-wrap items-center gap-3">
-                  <h2 className="text-2xl font-extrabold text-white tracking-tight">
-                    {candidate?.name}
-                  </h2>
-                  <StagePill stage={application.stage} size="lg" />
+        <main className="flex-1 p-4 sm:p-6 space-y-4 max-w-6xl w-full">
+          {/* Candidate Profile Card */}
+          <div className="hf-card p-5 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-5">
+              {/* Left — Avatar + Info */}
+              <div className="flex items-start gap-4">
+                <div
+                  className="w-14 h-14 rounded-full flex items-center justify-center font-bold text-xl text-white flex-shrink-0"
+                  style={{ background: 'linear-gradient(135deg, #0A66C2, #4F46E5)' }}
+                >
+                  {candidate?.name?.charAt(0).toUpperCase() || '?'}
                 </div>
-
-                <div className="flex flex-wrap items-center gap-4 text-xs text-slate-300">
-                  <a
-                    href={`mailto:${candidate?.email}`}
-                    className="flex items-center gap-1.5 hover:text-brand-300 transition-colors"
-                  >
-                    <Mail className="w-3.5 h-3.5 text-slate-400" />
-                    <span>{candidate?.email}</span>
-                  </a>
-
-                  <a
-                    href={`tel:${candidate?.phone}`}
-                    className="flex items-center gap-1.5 hover:text-brand-300 transition-colors font-mono"
-                  >
-                    <Phone className="w-3.5 h-3.5 text-slate-400" />
-                    <span>{candidate?.phone}</span>
-                  </a>
-
-                  <div className="flex items-center gap-1.5 text-slate-400">
-                    <Briefcase className="w-3.5 h-3.5 text-slate-400" />
-                    <span className="text-slate-200 font-semibold">{job?.title}</span>
-                    <span>({job?.location} • {job?.employmentType})</span>
+                <div className="space-y-1.5">
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <h2 className="text-xl font-bold text-linkedin-text">{candidate?.name}</h2>
+                    <span
+                      className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                      style={{ background: stageMeta_.bg, color: stageMeta_.color }}
+                    >
+                      {application.stage}
+                    </span>
                   </div>
 
-                  <div className="flex items-center gap-1.5 text-slate-400">
-                    <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                    <span>Applied {formatDateTime(application.createdAt)}</span>
+                  <div className="flex flex-wrap items-center gap-4 text-xs text-linkedin-muted">
+                    <a href={`mailto:${candidate?.email}`} className="flex items-center gap-1.5 hover:text-linkedin-blue transition-colors">
+                      <Mail className="w-3.5 h-3.5" />
+                      <span>{candidate?.email}</span>
+                    </a>
+                    <a href={`tel:${candidate?.phone}`} className="flex items-center gap-1.5 hover:text-linkedin-blue transition-colors">
+                      <Phone className="w-3.5 h-3.5" />
+                      <span>{candidate?.phone}</span>
+                    </a>
+                    <span className="flex items-center gap-1.5">
+                      <Briefcase className="w-3.5 h-3.5" />
+                      <span className="font-medium text-linkedin-text">{job?.title}</span>
+                      <span>({job?.location} · {job?.employmentType})</span>
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5" />
+                      Applied {formatDateTime(application.createdAt)}
+                    </span>
                   </div>
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-3">
+              {/* Right — Actions */}
+              <div className="flex flex-wrap items-center gap-2 flex-shrink-0">
                 {candidate?.resumeUrl && (
                   <a
                     href={candidate.resumeUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-slate-600 transition-all shadow-sm"
+                    className="btn-secondary text-xs px-4 py-2"
                   >
-                    <FileText className="w-4 h-4 text-brand-400" />
-                    <span>View Resume</span>
-                    <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                    <FileText className="w-4 h-4" />
+                    View Resume
+                    <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 )}
-
                 <button
                   onClick={() => setIsStageModalOpen(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-brand-600 hover:bg-brand-500 shadow-md shadow-brand-500/25 transition-all active:scale-95"
+                  className="btn-primary text-xs px-4 py-2"
                 >
                   <SlidersHorizontal className="w-4 h-4" />
-                  <span>Update Stage Pipeline</span>
+                  Update Stage
                 </button>
               </div>
             </div>
 
-            {/* Candidate Application Note if available */}
+            {/* Candidate Note */}
             {application.note && (
-              <div className="mt-5 pt-4 border-t border-slate-800/80 flex items-start gap-2.5 text-xs text-slate-300">
-                <MessageSquare className="w-4 h-4 text-brand-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <span className="font-bold text-slate-200">Candidate Note: </span>
-                  <span className="italic text-slate-300">&ldquo;{application.note}&rdquo;</span>
+              <div className="mt-4 pt-4 border-t border-linkedin-border flex items-start gap-2.5 text-sm">
+                <MessageSquare className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#0A66C2' }} />
+                <div className="text-linkedin-text">
+                  <span className="font-semibold">Candidate Note: </span>
+                  <span className="italic text-linkedin-muted">"{application.note}"</span>
                 </div>
               </div>
             )}
           </div>
 
-          {/* AI Candidate Insights Section */}
-          <AIInsightsCard
-            application={application}
-            onRefresh={fetchApplicationDetails}
-          />
+          {/* AI Insights */}
+          <AIInsightsCard application={application} onRefresh={fetchApplicationDetails} />
 
-          {/* Hiring Workflow Pipeline & Timeline */}
+          {/* Stage Timeline */}
           <StageTimeline application={application} />
 
-          {/* Interview Evaluation & Notes Section */}
-          <InterviewNotesSection
-            application={application}
-            onNoteAdded={fetchApplicationDetails}
-          />
+          {/* Interview Notes */}
+          <InterviewNotesSection application={application} onNoteAdded={fetchApplicationDetails} />
         </main>
       </div>
 
-      {/* Stage Change Modal */}
       {isStageModalOpen && (
         <StageChangeModal
           isOpen={isStageModalOpen}

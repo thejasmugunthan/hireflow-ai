@@ -1,76 +1,248 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  * {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-slate-950 text-slate-100 font-sans;
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.08) 0px, transparent 50%);
-    background-attachment: fixed;
+    @apply font-sans text-linkedin-text antialiased;
+    background-color: #F3F2EF;
+  }
+
+  /* Admin pages get light grey bg */
+  body.admin-layout {
+    background-color: #F8FAFC;
   }
 }
 
-/* Custom Scrollbar */
+/* ===================== */
+/* CUSTOM SCROLLBAR       */
+/* ===================== */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
-
 ::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.6);
+  background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: rgba(51, 65, 85, 0.8);
-  border-radius: 4px;
+  background: #CBD5E1;
+  border-radius: 99px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.6);
+  background: #94A3B8;
 }
 
-/* Glassmorphism Utilities */
-.glass-panel {
-  background: rgba(15, 23, 42, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+/* ===================== */
+/* CARD COMPONENTS        */
+/* ===================== */
+.hf-card {
+  @apply bg-white rounded-xl border border-linkedin-border;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.06), 0 2px 8px rgba(0,0,0,.04);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-.glass-panel-hover {
-  transition: all 0.2s ease-in-out;
-}
-
-.glass-panel-hover:hover {
-  background: rgba(30, 41, 59, 0.75);
-  border-color: rgba(99, 102, 241, 0.3);
+.hf-card-hover:hover {
+  box-shadow: 0 0 0 1px rgba(0,0,0,.1), 0 6px 20px rgba(0,0,0,.08);
   transform: translateY(-2px);
 }
 
-.glass-card {
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+.hf-card-flat {
+  @apply bg-white rounded-xl border border-linkedin-border;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.06);
 }
 
-/* Glow effects */
-.glow-primary {
-  box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.3);
+/* ===================== */
+/* BUTTON STYLES          */
+/* ===================== */
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full font-semibold text-sm text-white transition-all duration-200 active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500;
+  background-color: #0A66C2;
+}
+.btn-primary:hover {
+  background-color: #004182;
+}
+.btn-primary:disabled {
+  @apply opacity-60 cursor-not-allowed;
 }
 
-.glow-emerald {
-  box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.3);
+.btn-secondary {
+  @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full font-semibold text-sm transition-all duration-200 active:scale-95 focus:outline-none;
+  color: #0A66C2;
+  border: 1.5px solid #0A66C2;
+  background: transparent;
+}
+.btn-secondary:hover {
+  background-color: #EAF4FF;
 }
 
-/* Pulse animation for AI indicator */
-@keyframes subtle-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.85; transform: scale(1.02); }
+.btn-ghost {
+  @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full font-medium text-sm text-linkedin-muted hover:text-linkedin-text hover:bg-linkedin-hover transition-all duration-150;
 }
 
-.animate-subtle-pulse {
-  animation: subtle-pulse 3s infinite ease-in-out;
+/* ===================== */
+/* INPUT STYLES           */
+/* ===================== */
+.hf-input {
+  @apply w-full px-4 py-3 rounded-lg text-sm text-linkedin-text placeholder-linkedin-muted border border-linkedin-border bg-white transition-all duration-150;
+  outline: none;
+}
+.hf-input:focus {
+  border-color: #0A66C2;
+  box-shadow: 0 0 0 2px rgba(10, 102, 194, 0.15);
+}
+.hf-input.error {
+  border-color: #EF4444;
+}
+
+.hf-select {
+  @apply w-full px-4 py-3 rounded-lg text-sm text-linkedin-text border border-linkedin-border bg-white cursor-pointer transition-all duration-150;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 44px;
+}
+.hf-select:focus {
+  border-color: #0A66C2;
+  box-shadow: 0 0 0 2px rgba(10, 102, 194, 0.15);
+}
+
+/* ===================== */
+/* BADGE / PILL STYLES    */
+/* ===================== */
+.badge {
+  @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold;
+}
+
+.badge-blue   { @apply bg-blue-100 text-blue-700; }
+.badge-indigo { @apply bg-indigo-100 text-indigo-700; }
+.badge-amber  { @apply bg-amber-100 text-amber-700; }
+.badge-purple { @apply bg-purple-100 text-purple-700; }
+.badge-green  { @apply bg-emerald-100 text-emerald-700; }
+.badge-red    { @apply bg-rose-100 text-rose-700; }
+.badge-slate  { @apply bg-slate-100 text-slate-600; }
+
+/* ===================== */
+/* NAV SIDEBAR            */
+/* ===================== */
+.sidebar-link {
+  @apply flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-linkedin-muted transition-all duration-150 relative;
+}
+.sidebar-link:hover {
+  @apply bg-linkedin-lightblue text-linkedin-blue;
+}
+.sidebar-link.active {
+  @apply bg-linkedin-lightblue text-linkedin-blue font-semibold;
+}
+.sidebar-link.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 60%;
+  width: 3px;
+  background: #0A66C2;
+  border-radius: 0 3px 3px 0;
+}
+
+/* ===================== */
+/* STAT CARD              */
+/* ===================== */
+.stat-card {
+  @apply hf-card p-5 flex flex-col gap-2;
+}
+
+/* ===================== */
+/* STAGE PIPELINE         */
+/* ===================== */
+.pipeline-step {
+  @apply flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold;
+}
+
+/* ===================== */
+/* TABLE STYLES           */
+/* ===================== */
+.hf-table thead th {
+  @apply px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-linkedin-muted bg-slate-50 border-b border-linkedin-border;
+}
+.hf-table tbody td {
+  @apply px-4 py-3.5 text-sm text-linkedin-text border-b border-linkedin-border/60;
+}
+.hf-table tbody tr:hover td {
+  @apply bg-linkedin-hover;
+}
+.hf-table tbody tr:last-child td {
+  @apply border-b-0;
+}
+
+/* ===================== */
+/* ANIMATIONS             */
+/* ===================== */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+/* Fade in */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.4s ease-out both;
+}
+
+/* Mobile sidebar overlay */
+.sidebar-overlay {
+  @apply fixed inset-0 bg-black/40 z-40 backdrop-blur-sm;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ===================== */
+/* DRAG & DROP ZONE       */
+/* ===================== */
+.drop-zone {
+  @apply border-2 border-dashed border-linkedin-border rounded-xl p-8 text-center transition-all duration-200 cursor-pointer;
+}
+.drop-zone:hover, .drop-zone.drag-over {
+  border-color: #0A66C2;
+  background-color: #EAF4FF;
+}
+
+/* ===================== */
+/* MOBILE RESPONSIVE      */
+/* ===================== */
+@media (max-width: 768px) {
+  .hf-table tbody td {
+    @apply px-3 py-3 text-xs;
+  }
+  .hf-table thead th {
+    @apply px-3 py-2.5 text-xs;
+  }
 }
