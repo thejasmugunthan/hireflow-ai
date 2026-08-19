@@ -1,19 +1,18 @@
 version: 1
-applications:
-  - appRoot: frontend
-    frontend:
-      phases:
-        preBuild:
-          commands:
-            - echo "Node $(node -v) | NPM $(npm -v)"
-            - npm install
-        build:
-          commands:
-            - npm run build
-      artifacts:
-        baseDirectory: dist
-        files:
-          - '**/*'
-      cache:
-        paths:
-          - node_modules/**/*
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - node --version
+        - npm --version
+        - cd frontend && npm install
+    build:
+      commands:
+        - cd frontend && npm run build
+  artifacts:
+    baseDirectory: frontend/dist
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - frontend/node_modules/**/*
