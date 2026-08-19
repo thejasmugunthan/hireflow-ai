@@ -5,7 +5,7 @@ import { uploadFile } from '../config/cloudinary.js';
 import { extractTextFromResume } from '../services/resumeService.js';
 import { analyzeCandidateResume } from '../services/aiService.js';
 
-// Stage Transition Rules
+// Strict Stage Transition Rules: Forward-only with Pass / Fail choices
 const ALLOWED_TRANSITIONS = {
   Applied: ['R1', 'Reject'],
   R1: ['R2', 'R1 Reject'],
@@ -18,7 +18,7 @@ const ALLOWED_TRANSITIONS = {
   Approved: [],
 };
 
-// Public: Submit application
+// Public: Submit application with direct MongoDB PDF storage
 export const submitApplication = async (req, res, next) => {
   try {
     const { name, phone, email, jobId, note } = req.body;
@@ -68,32 +68,51 @@ export const submitApplication = async (req, res, next) => {
       }
     }
 
-    // Upload resume to Cloudinary or local fallback
-    const uploadResult = await uploadFile(file);
+    // Optional Cloudinary upload (safe fallback to empty string if not configured)
+    let cloudUrl = '';
+    let publicId = '';
+    try {
+      const uploadResult = await uploadFile(file);
+      cloudUrl = uploadResult.url;
+      publicId = uploadResult.publicId;
+    } catch (uploadErr) {
+      console.log('Cloudinary not configured, relying directly on MongoDB Atlas resume storage.');
+    }
 
-    // Extract text from resume
+    // Extract text from resume for AI screening
     const resumeRawText = await extractTextFromResume(file);
+
+    // Convert PDF/DOCX binary buffer to Base64 string for persistent MongoDB Atlas storage
+    const resumeData = file.buffer.toString('base64');
+    const resumeContentType = file.mimetype || 'application/pdf';
+    const resumeFileName = file.originalname || 'resume.pdf';
 
     if (!candidate) {
       candidate = await Candidate.create({
         name: name.trim(),
         email: cleanEmail,
         phone: phone.trim(),
-        resumeUrl: uploadResult.url,
-        resumePublicId: uploadResult.publicId,
+        resumeUrl: cloudUrl,
+        resumePublicId: publicId,
         resumeRawText,
+        resumeData,
+        resumeContentType,
+        resumeFileName,
       });
     } else {
       // Update candidate details and latest resume
       candidate.name = name.trim();
       candidate.phone = phone.trim();
-      candidate.resumeUrl = uploadResult.url;
-      candidate.resumePublicId = uploadResult.publicId;
-      if (resumeRawText) candidate.resumeRawText = resumeRawText;
+      if (cloudUrl) candidate.resumeUrl = cloudUrl;
+      candidate.resumePublicId = publicId;
+      candidate.resumeRawText = resumeRawText;
+      candidate.resumeData = resumeData;
+      candidate.resumeContentType = resumeContentType;
+      candidate.resumeFileName = resumeFileName;
       await candidate.save();
     }
 
-    // Create Application
+    // Create Application with initial 'Applied' stage
     const application = await Application.create({
       candidateId: candidate._id,
       jobId: job._id,
@@ -110,6 +129,9 @@ export const submitApplication = async (req, res, next) => {
       aiAnalysis: {
         status: 'pending',
         matchScore: null,
+        plagiarismScore: null,
+        originalityScore: null,
+        plagiarismFlags: [],
         summary: 'AI analysis in progress...',
         skills: [],
         matchedSkills: [],
@@ -131,7 +153,7 @@ export const submitApplication = async (req, res, next) => {
         await Application.findByIdAndUpdate(application._id, {
           aiAnalysis: aiResult,
         });
-        console.log(`✨ AI Insights generated for application ${application._id}`);
+        console.log(`✨ AI Insights & Plagiarism score generated for application ${application._id}`);
       } catch (aiErr) {
         console.error('Async AI Analysis background error:', aiErr.message);
         await Application.findByIdAndUpdate(application._id, {
@@ -162,29 +184,58 @@ export const submitApplication = async (req, res, next) => {
   }
 };
 
+// Stream Resume directly from MongoDB Atlas document
+export const getApplicationResume = async (req, res, next) => {
+  try {
+    const application = await Application.findById(req.params.id).populate('candidateId');
+    if (!application || !application.candidateId) {
+      return res.status(404).json({
+        success: false,
+        message: 'Application or candidate record not found',
+      });
+    }
+
+    const candidate = application.candidateId;
+
+    if (!candidate.resumeData) {
+      // Legacy fallback: If external URL exists, redirect to it
+      if (candidate.resumeUrl && candidate.resumeUrl.startsWith('http')) {
+        return res.redirect(candidate.resumeUrl);
+      }
+      return res.status(404).json({
+        success: false,
+        message: 'Resume binary document is not stored in database.',
+      });
+    }
+
+    const buffer = Buffer.from(candidate.resumeData, 'base64');
+    const contentType = candidate.resumeContentType || 'application/pdf';
+    const fileName = encodeURIComponent(candidate.resumeFileName || `${candidate.name}-Resume.pdf`);
+
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
+    res.setHeader('Content-Length', buffer.length);
+    res.send(buffer);
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Admin: Get all applications with search and filters
 export const getApplications = async (req, res, next) => {
   try {
     const { jobId, stage, search } = req.query;
-
     const query = {};
 
-    if (jobId && jobId !== 'all') {
-      query.jobId = jobId;
-    }
+    if (jobId && jobId !== 'all') query.jobId = jobId;
+    if (stage && stage !== 'all') query.stage = stage;
 
-    if (stage && stage !== 'all') {
-      query.stage = stage;
-    }
-
-    // Populate candidate and job
     let applications = await Application.find(query)
-      .populate('candidateId', 'name email phone resumeUrl')
+      .populate('candidateId', 'name email phone resumeUrl resumeFileName')
       .populate('jobId', 'title location employmentType skills')
       .sort({ createdAt: -1 })
       .lean();
 
-    // Client search filter by candidate name, email, or AI skills
     if (search && search.trim()) {
       const s = search.trim().toLowerCase();
       applications = applications.filter((app) => {
@@ -231,7 +282,7 @@ export const getApplicationById = async (req, res, next) => {
   }
 };
 
-// Admin: Update application stage with workflow validation
+// Admin: Update application stage with strict workflow validation
 export const updateApplicationStage = async (req, res, next) => {
   try {
     const { stage, reason, force } = req.body;
@@ -253,7 +304,6 @@ export const updateApplicationStage = async (req, res, next) => {
 
     const currentStage = application.stage;
 
-    // Check if stage is actually changing
     if (currentStage === stage) {
       return res.json({
         success: true,
@@ -267,8 +317,8 @@ export const updateApplicationStage = async (req, res, next) => {
     if (!force && !allowed.includes(stage)) {
       return res.status(400).json({
         success: false,
-        message: `Invalid stage transition from "${currentStage}" to "${stage}". Allowed next stages: ${
-          allowed.length > 0 ? allowed.join(', ') : 'None (Terminal stage)'
+        message: `Invalid stage transition from "${currentStage}" to "${stage}". Forward options allowed: ${
+          allowed.length > 0 ? allowed.join(', ') : 'None (Terminal stage - Candidate cannot be advanced further)'
         }`,
       });
     }
@@ -362,7 +412,7 @@ export const triggerAIAnalysis = async (req, res, next) => {
 
     res.json({
       success: true,
-      message: 'AI Candidate Insights generated successfully',
+      message: 'AI Candidate Insights & Plagiarism Score generated successfully',
       data: aiResult,
     });
   } catch (error) {
@@ -408,7 +458,6 @@ export const getDashboardStats = async (req, res, next) => {
       }
     });
 
-    // Recent 5 applications
     const recentApplications = await Application.find()
       .populate('candidateId', 'name email')
       .populate('jobId', 'title')

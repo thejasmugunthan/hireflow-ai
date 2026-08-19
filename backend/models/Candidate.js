@@ -21,7 +21,7 @@ const candidateSchema = new mongoose.Schema(
     },
     resumeUrl: {
       type: String,
-      required: [true, 'Resume URL is required'],
+      default: '',
     },
     resumePublicId: {
       type: String,
@@ -30,6 +30,19 @@ const candidateSchema = new mongoose.Schema(
     resumeRawText: {
       type: String,
       default: '',
+    },
+    // Direct MongoDB Atlas cloud storage for PDF/DOCX
+    resumeData: {
+      type: String, // Stored as Base64 data string
+      default: '',
+    },
+    resumeContentType: {
+      type: String,
+      default: 'application/pdf',
+    },
+    resumeFileName: {
+      type: String,
+      default: 'resume.pdf',
     },
   },
   {

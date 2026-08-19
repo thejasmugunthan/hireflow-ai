@@ -149,18 +149,16 @@ export const CandidateDetails = () => {
 
               {/* Right — Actions */}
               <div className="flex flex-wrap items-center gap-2 flex-shrink-0">
-                {candidate?.resumeUrl && (
-                  <a
-                    href={candidate.resumeUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="btn-secondary text-xs px-4 py-2"
-                  >
-                    <FileText className="w-4 h-4" />
-                    View Resume
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
-                )}
+                <a
+                  href={`/api/applications/${application._id}/resume`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn-secondary text-xs px-4 py-2"
+                >
+                  <FileText className="w-4 h-4" />
+                  View Resume (PDF)
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
                 <button
                   onClick={() => setIsStageModalOpen(true)}
                   className="btn-primary text-xs px-4 py-2"
