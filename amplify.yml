@@ -3,10 +3,10 @@ frontend:
   phases:
     preBuild:
       commands:
-        - npm --prefix frontend install
+        - cd $AWS_SRC_DIR/frontend && npm install --include=dev
     build:
       commands:
-        - npm --prefix frontend run build
+        - cd $AWS_SRC_DIR/frontend && npm run build
   artifacts:
     baseDirectory: frontend/dist
     files:
